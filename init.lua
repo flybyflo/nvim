@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -114,9 +114,9 @@ vim.opt.showmode = false
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
-vim.schedule(function()
-  vim.opt.clipboard = 'unnamedplus'
-end)
+-- vim.schedule(function()
+--  vim.opt.clipboard = 'unnamedplus'
+-- end)
 
 -- Enable break indent
 vim.opt.breakindent = true
@@ -613,19 +613,68 @@ require('lazy').setup({
       --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+
       local servers = {
-        -- clangd = {},
-        -- gopls = {},
-        -- pyright = {},
-        -- rust_analyzer = {},
-        -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-        --
-        -- Some languages (like typescript) have entire language plugins that can be useful:
-        --    https://github.com/pmizio/typescript-tools.nvim
-        --
-        -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-        --
+        -- Python LSP
+        pyright = {
+          settings = {
+            python = {
+              analysis = {
+                typeCheckingMode = 'basic',
+                autoSearchPaths = true,
+                useLibraryCodeForTypes = true,
+              },
+              pythonPath = '/Users/flybyflo/anaconda3/bin/python',
+            },
+          },
+        },
+        -- TypeScript/React LSP
+        ['typescript-language-server'] = {
+          settings = {
+            typescript = {
+              format = {
+                indentSize = 2,
+                convertTabsToSpaces = true,
+                tabSize = 2,
+              },
+            },
+            javascript = {
+              format = {
+                indentSize = 2,
+                convertTabsToSpaces = true,
+                tabSize = 2,
+              },
+            },
+            completions = {
+              completeFunctionCalls = true,
+            },
+          },
+          filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact' },
+        },
+
+        -- Rust LSP
+        rust_analyzer = {
+          settings = {
+            ['rust-analyzer'] = {
+              checkOnSave = {
+                command = 'clippy',
+              },
+              diagnostics = {
+                enable = true,
+                experimental = {
+                  enable = true,
+                },
+              },
+              inlayHints = {
+                lifetimeElisionHints = {
+                  enable = 'always',
+                  useParameterNames = true,
+                },
+                maxLength = 20,
+              },
+            },
+          },
+        },
 
         lua_ls = {
           -- cmd = { ... },
@@ -642,7 +691,6 @@ require('lazy').setup({
           },
         },
       }
-
       -- Ensure the servers and tools above are installed
       --  To check the current status of installed tools and/or manually install
       --  other tools, you can run
@@ -656,6 +704,12 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'pyright', -- Python LSP
+        'typescript-language-server', -- TypeScript/JavaScript LSP
+        'prettier', -- Formatter for JavaScript, TypeScript, and more
+        'black', -- Python formatter
+        'isort', -- Python import formatter
+        'rust-analyzer', -- Rust LSP
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -708,11 +762,15 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        -- Python formatting with black and isort
+        python = { 'isort', 'black' },
+        -- TypeScript/React formatting with prettier
+        typescript = { 'prettier' },
+        javascript = { 'prettier' },
+        typescriptreact = { 'prettier' },
+        javascriptreact = { 'prettier' },
+        -- Rust formatting with rustfmt
+        rust = { 'rustfmt' },
       },
     },
   },
