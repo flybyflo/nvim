@@ -695,7 +695,7 @@ do
     -- clangd = {},
     -- gopls = {},
     -- pyright = {},
-    -- rust_analyzer = {},
+    rust_analyzer = {},
     --
     -- Some languages (like typescript) have entire language plugins that can be useful:
     --    https://github.com/pmizio/typescript-tools.nvim
@@ -829,7 +829,7 @@ do
 
   -- [[ Autocomplete Engine ]]
   vim.pack.add { { src = gh 'saghen/blink.cmp', version = vim.version.range '1.*' } }
-  require('blink.cmp').setup {
+  local blink_opts = {
     keymap = {
       -- 'default' (recommended) for mappings similar to built-in completions
       --   <c-y> to accept ([y]es) the completion.
@@ -888,6 +888,11 @@ do
     -- Shows a signature help window while you type arguments for a function
     signature = { enabled = true },
   }
+
+  local ok, customize_blink = pcall(require, 'custom.plugins.blink-cmp')
+  if ok and type(customize_blink) == 'function' then customize_blink(blink_opts) end
+
+  require('blink.cmp').setup(blink_opts)
 end
 
 -- ============================================================
@@ -904,7 +909,7 @@ do
   vim.pack.add { { src = gh 'nvim-treesitter/nvim-treesitter', version = 'main' } }
 
   -- Ensure basic parsers are installed
-  local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
+  local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'rust', 'vim', 'vimdoc' }
   require('nvim-treesitter').install(parsers)
 
   ---@param buf integer
@@ -976,7 +981,7 @@ do
   -- NOTE: You can add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- require 'custom.plugins'
+  require 'custom.plugins'
 end
 
 -- The line beneath this is called `modeline`. See `:help modeline`
